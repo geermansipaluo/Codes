@@ -1,0 +1,8 @@
+pod-build
+*.mex*
+*.so
+.DS_Store
+*.pyc
+build/
+externals_config.cmake
+iris_wrapper.py

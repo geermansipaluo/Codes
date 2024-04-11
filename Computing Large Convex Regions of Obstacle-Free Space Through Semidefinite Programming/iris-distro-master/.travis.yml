@@ -1,0 +1,45 @@
+language: python
+
+notifications:
+  email: false
+
+branches:
+  only:
+    - master
+
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      dist: trusty
+      python: "2.7"
+      env:
+        - PYBIND11_PYTHON_VERSION=2.7
+    - os: linux
+      sudo: required
+      dist: trusty
+      python: "3.5"
+      env:
+        - PYBIND11_PYTHON_VERSION=3.5
+    - os: osx
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux.sh ; fi
+  - mkdir -p $HOME/.config/matplotlib
+  - echo backend\:\ agg >> $HOME/.config/matplotlib/matplotlibrc
+  - export MATPLOTLIBRC=$HOME/.config/matplotlib
+  - mkdir -p $HOME/mosek
+  - openssl aes-256-cbc -K $encrypted_b15e1ad4334d_key -iv $encrypted_b15e1ad4334d_iv -in lic.enc -out $HOME/mosek/mosek.lic -d
+  - pip install -r requirements.txt
+  - pip install IPython==5.0
+  - pip install jupyter
+
+install:
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_INSTALL_PREFIX=install -DCMAKE_BUILD_TYPE=Release -DPYBIND11_PYTHON_VERSION=$PYBIND11_PYTHON_VERSION
+  - make
+
+script:
+  - cd iris-build
+  - ctest --output-on-failure
